@@ -30,7 +30,7 @@ class Node:
     
         return False
 
-    def expand(self, node, frontier):
+    def expand(self, node, frontier, explored):
         print("> Node expansion started, please wait...", "\n")
         first_0 = [None, None]      # [i, j]
         second_0 = [None, None]     # [i, j]
@@ -59,18 +59,19 @@ class Node:
 
 
         # check frontier
-        if not frontier:
+        frontier_len = len(frontier)
+        if frontier_len == 0:
             for x in node.children:
-                frontier.append(x)
-                #print(x.grid)
+                if x.grid not in explored:
+                    frontier.append(x)
 
         else:
-            frontier_len = len(frontier)
-            for i in range(frontier_len):
-                for x in node.children:
-                    if frontier[i].grid != x.grid:
-                        frontier.append(x)
-                        #print(x.grid)
+            for x in node.children:
+                if x.grid not in explored:
+                    for i in range(frontier_len):
+                        if frontier[i].grid != x.grid:
+                            frontier.append(x)
+                            break
         print("> Node expansion done...", "\n")
 
     def move_left(self, node, coordinate):
@@ -123,14 +124,14 @@ class Node:
             if self.goaltest(node_initial, node_goal, frontier_initial, frontier_goal, groundzero_initial, groundzero_goal):
                 #os.system('cls')
                 break
-            if node_initial.grid not in explored_initial:
+            else:
                 print("> Not the answer, adding to the initial's explored...", "\n")
                 explored_initial.append(node_initial.grid)
-                self.expand(node_initial, frontier_initial)
-            if node_goal.grid not in explored_goal:
+                self.expand(node_initial, frontier_initial, explored_initial)
+            
                 print("> Not the answer, adding to the goal's explored...", "\n")
                 explored_goal.append(node_goal.grid)
-                self.expand(node_goal, frontier_goal)
+                self.expand(node_goal, frontier_goal, explored_goal)
             print("> initial frontier: ", len(frontier_initial))
             print("> initial explored: ", len(explored_initial))
             print("> goal frontier: ", len(frontier_goal))
@@ -167,10 +168,10 @@ def read_input_file(filename, grid):
     
     return grid
 def final_report(frontier_initial, frontier_goal, explored_initial, explored_goal):
-    print("Initial side:")
+    print("Initial side")
     print("frontier: ", len(frontier_initial))
     print("explored: ", len(explored_initial), "\n")
-    print("Goal side:")
+    print("Goal side")
     print("frontier: ", len(frontier_goal))
     print("explored: ", len(explored_goal))
 
@@ -182,33 +183,19 @@ frontier_initial = deque()
 frontier_initial.append(initial)
 explored_initial = []
 
-goal1 = [[0, 0, 1, 2],
-         [3, 4, 5, 6],
-         [7, 8, 9, 10],
-         [11, 12, 13, 14]]
-goal2 = [[1, 2, 3, 4],
-         [5, 6, 7, 8],
-         [9, 10, 11, 12],
-         [13, 14, 0, 0]]
+goal_grid = [[1, 2, 3, 4],
+            [5, 6, 7, 8],
+            [9, 10, 11, 12],
+            [13, 14, 0, 0]]
 frontier_goal = deque()
 explored_goal = []
 
-print("Answer 1: ", goal1)
-print("Answer 2: ", goal2)
 
-choice = int(input("Which answer would you like to approach? Number: "))
 start_time = time.time()
 
-if choice == 1:
-    goal = Node(None, goal1)
-    frontier_goal.append(goal)
-    goal.bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal)
-elif choice == 2:
-    goal = Node(None, goal2)
-    frontier_goal.append(goal)
-    goal.bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal)
-else:
-    print("Wrong input!")
+goal = Node(None, goal_grid)
+frontier_goal.append(goal)
+goal.bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal)
 
 final_report(frontier_initial, frontier_goal, explored_initial, explored_goal)
 
