@@ -1,2 +1,2 @@
-# 14 Puzzle Problem w/Bidirectional Search
+# 14 Puzzle Problem Bidirectional Search
 Same problem, different approach.  
