@@ -85,6 +85,10 @@ def expand(node, frontier, explored):
     move_down(node, first_0, frontier, explored)
     move_down(node, second_0, frontier, explored)
 
+def add_to_frontier(node, child_grid, frontier):
+    child = Node(node, child_grid)
+    frontier.append(child)
+
 def move_left(node, coordinate, frontier, explored):
     i, j = coordinate[0], coordinate[1]
     if j == 0 or node.grid[i][j-1] == 0:
@@ -93,8 +97,7 @@ def move_left(node, coordinate, frontier, explored):
         child_grid = deepcopy(node.grid)
         child_grid[i][j], child_grid[i][j-1] = child_grid[i][j-1], child_grid[i][j]
         if check_grid(child_grid, frontier, explored):
-            child = Node(node, child_grid)
-            frontier.append(child)
+            add_to_frontier(node, child_grid, frontier)
 
 def move_right(node, coordinate, frontier, explored):
     i, j = coordinate[0], coordinate[1]
@@ -104,8 +107,7 @@ def move_right(node, coordinate, frontier, explored):
         child_grid = deepcopy(node.grid)
         child_grid[i][j], child_grid[i][j+1] = child_grid[i][j+1], child_grid[i][j]
         if check_grid(child_grid, frontier, explored):
-            child = Node(node, child_grid)
-            frontier.append(child)
+            add_to_frontier(node, child_grid, frontier)
 
 def move_up(node, coordinate, frontier, explored):
     i, j = coordinate[0], coordinate[1]
@@ -115,8 +117,7 @@ def move_up(node, coordinate, frontier, explored):
         child_grid = deepcopy(node.grid)
         child_grid[i][j], child_grid[i-1][j] = child_grid[i-1][j], child_grid[i][j]
         if check_grid(child_grid, frontier, explored):
-            child = Node(node, child_grid)
-            frontier.append(child)
+            add_to_frontier(node, child_grid, frontier)
 
 def move_down(node, coordinate, frontier, explored):
     i, j = coordinate[0], coordinate[1]
@@ -126,8 +127,7 @@ def move_down(node, coordinate, frontier, explored):
         child_grid = deepcopy(node.grid)
         child_grid[i][j], child_grid[i+1][j] = child_grid[i+1][j], child_grid[i][j]
         if check_grid(child_grid, frontier, explored):
-            child = Node(node, child_grid)
-            frontier.append(child)
+            add_to_frontier(node, child_grid, frontier)
 
 def bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal):
     while frontier_initial and frontier_goal:
