@@ -8,41 +8,28 @@ class Node:
         self.parent = parent
         self.grid = grid
 
-def print_answer(groundzero_initial, node_initial, groundzero_goal, node_goal):
+def print_answer(p1, p2):
     initial_to_middle = []
-    while node_initial.parent:
-        initial_to_middle.insert(0, node_initial.grid)
-        node_initial = node_initial.parent
+    while p1:
+        initial_to_middle.insert(0, p1.grid)
+        p1 = p1.parent
     print("\nStep by step solution:\n")
-    print(np.matrix(groundzero_initial.grid), "\n")
     for i in initial_to_middle:
         print(np.matrix(i), "\n")
     print("-----------middle--------------", "\n")
-    while node_goal.parent:
-        print(np.matrix(node_goal.grid), "\n")
-        node_goal = node_goal.parent
-    print(np.matrix(groundzero_goal.grid), "\n")
+    while p2:
+        print(np.matrix(p2.grid), "\n")
+        p2 = p2.parent
 
-def goaltest(node_initial, node_goal, frontier_initial, frontier_goal, initial, goal):
-    if node_initial.grid == node_goal.grid:
-        print_answer(initial, node_initial, goal, node_goal)
-        return True
+def search(node, frontier):
+    frontier_len = len(frontier)
     
-    for x in frontier_initial:
-        if node_goal.grid == x.grid:
-            node_initial = x
-            print_answer(initial, node_initial, goal, node_goal)
-            return True
-    
-    for x in frontier_goal:
-        if node_initial.grid == x.grid:
-            node_goal = x
-            print_answer(initial, node_initial, goal, node_goal)
-            return True
-    
-    return False
+    for i in range(frontier_len):
+        if frontier[i].grid == node.grid:
+            return frontier[i]
+    return None
 
-def check_grid(grid, frontier, explored):       # Question: cross 'explored' check or not? (13 0 14 0 case)
+def check_grid(grid, frontier, explored):
     frontier_len = len(frontier)
     if frontier_len == 0:
         if grid not in explored:
@@ -129,17 +116,28 @@ def move_down(node, coordinate, frontier, explored):
         if check_grid(child_grid, frontier, explored):
             add_to_frontier(node, child_grid, frontier)
 
-def bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal):
+def bidirectional_search(frontier_initial, explored_initial, frontier_goal, explored_goal):
     while frontier_initial and frontier_goal:
         node_initial = deque.popleft(frontier_initial)
-        node_goal = deque.popleft(frontier_goal)
-        if goaltest(node_initial, node_goal, frontier_initial, frontier_goal, initial, goal):
+        result_initial = search(node_initial, frontier_goal)
+        if result_initial:
+            p1 = node_initial
+            p2 = result_initial
             break
         else:
             explored_initial.append(node_initial.grid)
             expand(node_initial, frontier_initial, explored_initial)
+        
+        node_goal = deque.popleft(frontier_goal)
+        result_goal = search(node_goal, frontier_initial)
+        if result_goal:
+            p1 = result_goal
+            p2 = node_goal
+            break
+        else:
             explored_goal.append(node_goal.grid)
             expand(node_goal, frontier_goal, explored_goal)
+    print_answer(p1, p2)
 
 def read_input_file(filename, grid):
     numbers = ""
@@ -175,7 +173,7 @@ explored_goal = []
 
 start_time = time.time()
 
-bidirectional_search(initial, frontier_initial, explored_initial, goal, frontier_goal, explored_goal)
+bidirectional_search(frontier_initial, explored_initial, frontier_goal, explored_goal)
 
 print("Initial side")
 print("frontier: ", len(frontier_initial))
